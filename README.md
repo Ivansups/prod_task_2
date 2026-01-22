@@ -32,9 +32,30 @@
 
 2. **Настройте переменные окружения:**
    ```bash
-   cp .env.example .env
+   # Создайте файл .env в корне проекта со следующими переменными:
    ```
-   Заполните необходимые переменные в `.env` файле.
+
+   ```env
+   # Database
+   POSTGRES_HOST=postgres
+   POSTGRES_PORT=5432
+   POSTGRES_DB=chat_analytics
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=password
+
+   # Redis
+   REDIS_HOST=redis
+   REDIS_PORT=6379
+
+   # Telegram Bot
+   TELEGRAM_BOT_TOKEN=your_bot_token_here
+
+   # Google Gemini AI
+   GEMINI_API_KEY=your_gemini_api_key_here
+
+   # Web App
+   NEXT_PUBLIC_API_URL=http://localhost:3000
+   ```
 
 3. **Запустите сервисы:**
    ```bash

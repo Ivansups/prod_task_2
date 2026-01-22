@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { config } from '../config';
 
 export interface UserAnalysis {
@@ -11,7 +11,7 @@ export interface UserAnalysis {
 
 export class GeminiService {
   private genAI: GoogleGenerativeAI;
-  private model: any;
+  private model: GenerativeModel;
 
   constructor() {
     if (!config.gemini.apiKey) {
@@ -35,7 +35,7 @@ export class GeminiService {
       const prompt = this.buildAnalysisPrompt(username, messages, totalMessages);
 
       // Получаем ответ от Gemini
-      const result = await this.model.generateContent(prompt);
+      const result = await this.model!.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
 
@@ -125,7 +125,7 @@ ${messagesText}
    */
   async testConnection(): Promise<boolean> {
     try {
-      const result = await this.model.generateContent('Hello, test message');
+      const result = await this.model!.generateContent('Hello, test message');
       await result.response;
       return true;
     } catch (error) {

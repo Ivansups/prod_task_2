@@ -108,6 +108,15 @@ export class RedisService {
   createUsersListCacheKey(chatId: number): string {
     return `users_list:${chatId}`;
   }
+
+  /**
+   * Создает ключ для кэширования результатов поиска
+   */
+  createSearchCacheKey(chatId: number, query: string, page: number): string {
+    // Нормализуем запрос для ключа (убираем пробелы и специальные символы)
+    const normalizedQuery = query.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_').substring(0, 50);
+    return `search:${chatId}:${normalizedQuery}:${page}`;
+  }
 }
 
 // Создаем синглтон экземпляр сервиса Redis

@@ -1,6 +1,8 @@
 import { Context } from 'telegraf';
 import { db } from '../services/database';
 import { redis } from '../services/redis';
+import { UserData } from '../models/User';
+import { MessageData } from '../models/Message';
 
 export type StatsPeriod = 'all' | 'today' | 'week' | 'month';
 
@@ -271,7 +273,7 @@ async function handleUsersList(ctx: Context, chatId: number, page: number = 0): 
   let message = `👥 *Выберите пользователя для детальной статистики*\n\n`;
   message += `Показаны пользователи ${startIndex + 1}-${endIndex} из ${users.length}:\n\n`;
 
-  const keyboard = currentUsers.map((user: any, index: number) => {
+  const keyboard = currentUsers.map((user: { user_id: number; username: string | null; first_name: string | null; last_name: string | null; message_count: number }, index: number) => {
     const name = user.username || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Без имени';
     const displayName = name.length > 30 ? name.substring(0, 27) + '...' : name;
     return [{
@@ -307,9 +309,13 @@ async function handleUsersList(ctx: Context, chatId: number, page: number = 0): 
  * Получает статистику пользователя с кэшированием
  */
 async function getUserStatsData(chatId: number, userId: number, period: StatsPeriod): Promise<{
-  user: any;
-  stats: any;
-  recentMessages: any[];
+  user: UserData;
+  stats: {
+    message_count: number;
+    first_message: Date | null;
+    last_message: Date | null;
+  } | null;
+  recentMessages: MessageData[];
   cached: boolean;
 }> {
   const cacheKey = redis.createUserStatsCacheKey(chatId, userId, period);

@@ -11,7 +11,7 @@ vi.mock('pg', () => ({
 
 describe('Message Model - Search functionality', () => {
   let messageModel: Message;
-  let mockPool: any;
+  let mockPool: unknown;
 
   beforeEach(() => {
     mockPool = {

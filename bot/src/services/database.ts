@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 import { User } from '../models/User';
 import { Message } from '../models/Message';
 
@@ -80,7 +80,7 @@ export class DatabaseService {
   /**
    * Выполняет SQL запрос напрямую
    */
-  async query(text: string, params?: any[]): Promise<any> {
+  async query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[]): Promise<QueryResult<T>> {
     return this.pool.query(text, params);
   }
 }

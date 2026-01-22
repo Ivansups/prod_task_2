@@ -14,7 +14,7 @@ vi.mock('pg', () => ({
 
 describe('DatabaseService', () => {
   let dbService: DatabaseService;
-  let mockPool: any;
+  let mockPool: unknown;
 
   beforeEach(() => {
     // Очищаем все моки перед каждым тестом

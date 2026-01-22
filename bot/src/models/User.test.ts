@@ -11,7 +11,7 @@ vi.mock('pg', () => ({
 
 describe('User Model', () => {
   let userModel: User;
-  let mockPool: any;
+  let mockPool: unknown;
 
   beforeEach(() => {
     mockPool = {

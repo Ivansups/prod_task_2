@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 
 export interface UserAnalysis {
   personality: string;
@@ -9,10 +9,12 @@ export interface UserAnalysis {
 }
 
 export class GeminiService {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private genAI: GoogleGenerativeAI | null = null;
+  private model: GenerativeModel | null = null;
 
-  constructor() {
+  private initialize() {
+    if (this.genAI) return;
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is required for LLM analysis');
@@ -22,16 +24,26 @@ export class GeminiService {
     this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
   }
 
+  /**
+   * Анализирует поведение пользователя на основе его сообщений
+   */
   async analyzeUser(
     username: string,
     messages: Array<{ text: string; created_at: Date }>,
     totalMessages: number
   ): Promise<UserAnalysis> {
     try {
+      this.initialize();
+
+      // Подготавливаем промпт для анализа
       const prompt = this.buildAnalysisPrompt(username, messages, totalMessages);
-      const result = await this.model.generateContent(prompt);
+
+      // Получаем ответ от Gemini
+      const result = await this.model!.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
+
+      // Парсим ответ в структурированный формат
       return this.parseAnalysisResponse(text);
     } catch (error) {
       console.error('Error analyzing user with Gemini:', error);
@@ -39,6 +51,9 @@ export class GeminiService {
     }
   }
 
+  /**
+   * Строит промпт для анализа пользователя
+   */
   private buildAnalysisPrompt(
     username: string,
     messages: Array<{ text: string; created_at: Date }>,
@@ -70,8 +85,12 @@ ${messagesText}
 Ответь ТОЛЬКО в формате JSON, без дополнительного текста.`;
   }
 
+  /**
+   * Парсит ответ от Gemini в структурированный формат
+   */
   private parseAnalysisResponse(response: string): UserAnalysis {
     try {
+      // Ищем JSON в ответе (на случай если Gemini добавит лишний текст)
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('No JSON found in response');
@@ -79,6 +98,7 @@ ${messagesText}
 
       const parsed = JSON.parse(jsonMatch[0]);
 
+      // Валидируем структуру
       if (!parsed.personality || !parsed.topics || !parsed.communicationStyle ||
           !parsed.activity || !parsed.recommendations) {
         throw new Error('Invalid analysis structure');
@@ -93,6 +113,7 @@ ${messagesText}
       };
     } catch (error) {
       console.error('Error parsing Gemini response:', error);
+      // Возвращаем дефолтный анализ в случае ошибки парсинга
       return {
         personality: "Не удалось проанализировать личность пользователя",
         topics: ["Анализ недоступен"],
@@ -103,9 +124,13 @@ ${messagesText}
     }
   }
 
+  /**
+   * Тестирует подключение к Gemini API
+   */
   async testConnection(): Promise<boolean> {
     try {
-      const result = await this.model.generateContent('Hello, test message');
+      this.initialize();
+      const result = await this.model!.generateContent('Hello, test message');
       await result.response;
       return true;
     } catch (error) {
@@ -115,4 +140,5 @@ ${messagesText}
   }
 }
 
+// Создаем singleton экземпляр сервиса
 export const geminiService = new GeminiService();
