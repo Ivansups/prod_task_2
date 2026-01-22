@@ -1,0 +1,30 @@
+{
+  "name": "telegram-chat-analytics-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for chat analytics with LLM integration",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "keywords": ["telegram", "bot", "analytics", "llm", "gemini"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.2.0",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "redis": "^4.6.8",
+    "telegraf": "^4.12.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/pg": "^8.10.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6"
+  }
+}
